@@ -1,0 +1,9 @@
+{
+  "name": "aa5_ev01_servicio_web",
+  "version": "1.0.0",
+  "description": "Servicio web para registro e inicio de sesión",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  }
+}
