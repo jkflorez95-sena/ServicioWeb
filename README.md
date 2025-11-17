@@ -1,111 +1,43 @@
-# Servicio Web - Registro e Inicio de Sesión  
-_Evidencia GA7-220501096-AA5-EV01 - Diseño y Desarrollo de Servicios Web_
+# Servicio Web - Registro e Inicio de Sesión
 
-Este proyecto implementa un servicio web básico con registro e inicio de sesión utilizando:
+Este proyecto lo desarrollé como parte de la evidencia **GA7-220501096-AA5-EV01**, donde construyo un servicio web que permite registrar usuarios y realizar autenticación mediante usuario y contraseña.  
+Para la implementación utilicé **Node.js**, **Express**, **SQLite** y **bcrypt** para manejar la encriptación de las contraseñas.
+
+---
+
+## 1. Descripción del servicio web
+
+Creé una API que cuenta con dos funcionalidades principales:
+
+### ✔ Registro de usuarios  
+El servicio recibe un usuario y una contraseña.  
+- La contraseña la encripto antes de guardarla en la base de datos para mayor seguridad.  
+- Si el registro es exitoso, devuelvo un mensaje confirmando la creación del usuario.
+
+### ✔ Inicio de sesión  
+- Recibo nuevamente usuario y contraseña.  
+- Verifico que el usuario exista en la base de datos.  
+- Comparo la contraseña ingresada con la encriptada.  
+- Si todo es correcto, envío un mensaje indicando autenticación satisfactoria.  
+- Si algo falla, retorno un error de autenticación.
+
+---
+
+## 2. Tecnologías utilizadas
 
 - Node.js  
 - Express  
-- SQLite  
-- Bcrypt para encriptación de contraseñas  
+- SQLite3  
+- Bcrypt (para encriptación de contraseñas)  
+- Git y GitHub como herramientas de versionamiento  
 
 ---
 
-## 🚀 Instalación y ejecución
+## 3. Instalación del proyecto
 
-### 1. Instalar dependencias
+Para ejecutar mi proyecto localmente sigo estos pasos:
+
+### **1️⃣ Instalar dependencias**
+
 ```bash
 npm install
-```
-
-### 2. Ejecutar el servidor
-
-**Modo normal:**
-```bash
-npm start
-```
-
-**Modo desarrollo (con reinicio automático):**
-```bash
-npm run dev
-```
-
-El servidor estará disponible en:  
-**http://localhost:3000**
-
----
-
-## 🗄️ Base de datos
-
-El sistema utiliza SQLite.  
-La base de datos se genera automáticamente en la carpeta:
-
-```
-/data/auth.db
-```
-
-### Tabla principal: **users**
-
-| Campo         | Tipo                                 |
-|---------------|--------------------------------------|
-| id            | INTEGER PRIMARY KEY AUTOINCREMENT    |
-| username      | TEXT UNIQUE                          |
-| password_hash | TEXT                                 |
-
----
-
-## 🔐 Endpoints de la API
-
-### POST /register  
-Registra un nuevo usuario.
-
-#### Body (JSON)
-```json
-{
-  "username": "usuario",
-  "password": "clave123"
-}
-```
-
-#### Respuestas
-- **201** → Usuario creado correctamente  
-- **400** → Faltan datos  
-- **409** → Usuario ya existe  
-- **500** → Error interno  
-
----
-
-### POST /login  
-Autentica un usuario existente.
-
-#### Body (JSON)
-```json
-{
-  "username": "usuario",
-  "password": "clave123"
-}
-```
-
-#### Respuestas
-- **200** → Autenticación satisfactoria  
-- **400** → Faltan datos  
-- **401** → Error en autenticación  
-- **500** → Error interno  
-
----
-
-## 📁 Estructura del proyecto
-```
-ServicioWeb/
-│── db.js
-│── index.js
-│── package.json
-│── README.md
-│── .gitignore
-│── data/ (contiene la base de datos auth.db)
-```
-
----
-
-## 👨‍💻 Autor  
-**Juan Carlos Flórez**  
-Centro de Formación SENA

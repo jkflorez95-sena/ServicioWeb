@@ -1,45 +1,29 @@
-// En este archivo yo configuro la base de datos SQLite donde voy a guardar los usuarios.
-// También me aseguro de crear la tabla si aún no existe.
+// db.js: Configuración y conexión a la base de datos SQLite.
 
-const sqlite3 = require("sqlite3").verbose();
-const path = require("path");
-const fs = require("fs");
+const sqlite3 = require('sqlite3').verbose();
+const DB_PATH = './users.db'; 
 
-// Aquí defino la ruta donde quiero guardar la base de datos.
-const dataDir = path.join(__dirname, "data");
-const dbPath = path.join(dataDir, "auth.db");
-
-// Yo verifico si la carpeta /data existe. Si no existe, la creo.
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir);
-}
-
-// Yo creo la conexión a la base de datos.
-// Si el archivo no existe, SQLite lo crea automáticamente.
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error("Error al abrir la base de datos:", err.message);
-    throw err;
-  }
-
-  console.log("Base de datos SQLite creada o cargada correctamente.");
-
-  // Aquí creo la tabla 'users' si aún no existe.
-  db.run(
-    `CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE,
-        password_hash TEXT
-    )`,
-    (err) => {
-      if (err) {
-        console.error("Error al crear la tabla users:", err.message);
-      } else {
-        console.log("Tabla 'users' verificada correctamente.");
-      }
+// Configuración para abrir/crear la base de datos
+const db = new sqlite3.Database(DB_PATH, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
+    if (err) {
+        console.error("Error al abrir la base de datos:", err.message);
+        throw err;
+    } else {
+        console.log('Conexión exitosa a la base de datos SQLite.');
+        
+        // Crear la tabla 'users' si no existe. 
+        db.run(`CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password TEXT
+        )`, (err) => {
+            if (err) {
+                console.error("Error al crear la tabla 'users':", err.message);
+            } else {
+                console.log("Tabla 'users' lista para el servicio web.");
+            }
+        });
     }
-  );
 });
 
-// Exporto la conexión para poder usarla en otros archivos.
 module.exports = db;

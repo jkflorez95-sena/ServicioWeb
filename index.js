@@ -1,82 +1,85 @@
-// En este archivo yo creo el servidor web usando Express.
-// Aquí programo las rutas para registrar usuarios y para iniciar sesión.
+// index.js: Archivo principal del servicio web.
+// Este código maneja las rutas /register y /login, y utiliza bcrypt para la seguridad.
 
-const express = require("express");
-const bcrypt = require("bcryptjs"); // Yo uso bcrypt para encriptar las contraseñas
-const db = require("./db"); // Aquí importo la base de datos que configuré
+const express = require('express');
+const bcrypt = require('bcrypt');
+const db = require('./db'); 
+
 const app = express();
+const PORT = 5000;
 
-// Con este middleware puedo recibir JSON desde el cliente.
 app.use(express.json());
 
-// -----------------------------
-// RUTA PARA REGISTRAR USUARIO
-// -----------------------------
-app.post("/register", (req, res) => {
-  // Yo recibo el usuario y la contraseña que me envía el cliente
-  const { username, password } = req.body;
+// Ruta: Registro de usuario
+app.post('/register', async (req, res) => {
+    const { username, password } = req.body;
 
-  // Verifico que ambos campos existan
-  if (!username || !password) {
-    return res.status(400).json({ message: "Debo enviar usuario y contraseña" });
-  }
-
-  // Yo hago el hash de la contraseña para que quede segura
-  const passwordHash = bcrypt.hashSync(password, 10);
-
-  // Inserto el usuario en la base de datos
-  const sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)";
-  db.run(sql, [username, passwordHash], function (err) {
-    if (err) {
-      console.error("Error al registrar usuario:", err.message);
-      return res.status(500).json({ message: "Error: el usuario ya existe" });
+    if (!username || !password) {
+        return res.status(400).json({ error: "Debo enviar usuario y contraseña" });
     }
 
-    // Si todo sale bien
-    res.json({ message: "Usuario registrado correctamente" });
-  });
+    try {
+        // Encriptar la contraseña (factor de coste 10)
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Insertar el nuevo usuario en la base de datos
+        db.run(
+            "INSERT INTO users (username, password) VALUES (?, ?)",
+            [username, hashedPassword],
+            function (err) {
+                if (err) {
+                    console.error("Error al registrar usuario:", err.message);
+                    return res.status(400).json({ error: "El usuario ya existe o ocurrió un error al guardar" });
+                }
+                res.status(201).json({ message: "Usuario registrado correctamente", userId: this.lastID });
+            }
+        );
+
+    } catch (error) {
+        console.error("Error en el servidor durante el registro:", error);
+        res.status(500).json({ error: "Hubo un error en el servidor" });
+    }
 });
 
-// -----------------------------
-// RUTA PARA INICIAR SESIÓN
-// -----------------------------
-app.post("/login", (req, res) => {
-  const { username, password } = req.body;
 
-  // Reviso que tenga usuario y contraseña
-  if (!username || !password) {
-    return res.status(400).json({ message: "Faltan datos" });
-  }
+// Ruta: Inicio de sesión
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
 
-  // Busco en la base de datos el usuario ingresado
-  const sql = "SELECT * FROM users WHERE username = ?";
-  db.get(sql, [username], (err, user) => {
-    if (err) {
-      console.error("Error al consultar usuario:", err.message);
-      return res.status(500).json({ message: "Error interno" });
+    if (!username || !password) {
+        return res.status(400).json({ error: "Debo enviar usuario y contraseña" });
     }
 
-    // Si el usuario no existe
-    if (!user) {
-      return res.status(401).json({ message: "Error en la autenticación" });
-    }
+    // Buscar el usuario en la BD
+    db.get("SELECT * FROM users WHERE username = ?", [username], async (err, user) => {
+        
+        // Error si no se encuentra el usuario o error de BD
+        if (err || !user) {
+            // Requisito de la evidencia: error en la autenticación.
+            return res.status(401).json({ error: "Error de autenticación" });
+        }
 
-    // Yo comparo la contraseña ingresada con la contraseña encriptada
-    const passwordCorrect = bcrypt.compareSync(password, user.password_hash);
+        try {
+            // Comparar la contraseña proporcionada con el hash guardado
+            const isValid = await bcrypt.compare(password, user.password);
 
-    if (!passwordCorrect) {
-      return res.status(401).json({ message: "Error en la autenticación" });
-    }
+            if (!isValid) {
+                // Contraseña incorrecta. Requisito de la evidencia.
+                return res.status(401).json({ error: "Error de autenticación" });
+            }
 
-    // Si todo está bien
-    res.json({ message: "Autenticación satisfactoria" });
-  });
+            // Autenticación exitosa: Requisito de la evidencia
+            res.json({ message: "Autenticación satisfactoria" });
+
+        } catch (compareError) {
+            console.error("Error al comparar contraseñas:", compareError);
+            res.status(500).json({ error: "Error interno al verificar la contraseña" });
+        }
+    });
 });
 
-// -----------------------------
-// INICIO DEL SERVIDOR
-// -----------------------------
-const PORT = 3000;
+
+// Inicio del servidor
 app.listen(PORT, () => {
-  console.log(`Servidor ejecutándose en http://localhost:${PORT}`);
+    console.log(`Servidor de servicio web corriendo en http://localhost:${PORT}`);
 });

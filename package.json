@@ -1,22 +1,23 @@
 {
-  "name": "aa5_ev01_servicio_web",
+  "name": "servicio-web-autenticacion",
   "version": "1.0.0",
-  "description": "Servicio web para registro e inicio de sesión",
+  "description": "Servicio web para registro e inicio de sesión (GA7-220501096-AA5-EV01).",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node index.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "express",
+    "nodejs",
+    "web-service",
+    "autenticacion",
+    "sena"
+  ],
+  "author": "Aprendiz SENA",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^6.0.0",
-    "body-parser": "^2.2.0",
-    "express": "^5.1.0",
+    "bcrypt": "^5.1.1",
+    "express": "^4.19.2",
     "sqlite3": "^5.1.7"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.11"
   }
 }
