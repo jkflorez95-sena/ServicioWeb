@@ -1,0 +1,173 @@
+<!-- 
+    Propósito: Interfaz visual para demostrar los endpoints /register y /login 
+    del servicio web de Node.js que corre en http://localhost:5000.
+    Utiliza JavaScript para enviar peticiones POST y muestra la respuesta en pantalla.
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente Web - API de Autenticación</title>
+    <!-- Incluye Tailwind CSS para un diseño limpio y responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Fuente Inter por defecto */
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center p-4">
+
+    <header class="w-full max-w-4xl text-center py-6">
+        <h1 class="text-3xl font-extrabold text-blue-700">Servicio Web de Autenticación (Prueba Visual)</h1>
+        <p class="text-gray-600 mt-2">Demostración de los endpoints /register y /login</p>
+    </header>
+
+    <main class="w-full max-w-4xl grid md:grid-cols-2 gap-6">
+
+        <!-- Tarjeta de Registro -->
+        <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-gray-200">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">1. Registro de Usuario</h2>
+            
+            <form id="registerForm" onsubmit="event.preventDefault(); handleRegister();" class="space-y-4">
+                <div>
+                    <label for="reg-username" class="block text-sm font-medium text-gray-700">Usuario</label>
+                    <input type="text" id="reg-username" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="nuevo_usuario">
+                </div>
+                <div>
+                    <label for="reg-password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                    <input type="password" id="reg-password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="secreta123">
+                </div>
+                <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
+                    Registrar Usuario
+                </button>
+            </form>
+        </div>
+
+        <!-- Tarjeta de Inicio de Sesión -->
+        <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-gray-200">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">2. Inicio de Sesión</h2>
+            
+            <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();" class="space-y-4">
+                <div>
+                    <label for="log-username" class="block text-sm font-medium text-gray-700">Usuario</label>
+                    <input type="text" id="log-username" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="usuario_existente">
+                </div>
+                <div>
+                    <label for="log-password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                    <input type="password" id="log-password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="secreta123">
+                </div>
+                <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                    Iniciar Sesión
+                </button>
+            </form>
+        </div>
+    </main>
+    
+    <!-- Área de Resultados y Mensajes -->
+    <section class="mt-8 w-full max-w-4xl">
+        <div id="message-box" class="p-6 rounded-xl shadow-xl bg-white border border-gray-200">
+            <h3 class="text-xl font-semibold mb-2 text-gray-800">Resultado de la API</h3>
+            <div id="api-message" class="text-lg font-mono p-3 bg-gray-50 rounded-lg border">
+                Esperando acción...
+            </div>
+            <p class="mt-2 text-sm text-gray-500">
+                El mensaje anterior proviene directamente de su servidor Node.js/Express.
+            </p>
+        </div>
+    </section>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000';
+        const messageBox = document.getElementById('api-message');
+
+        /**
+         * Muestra la respuesta de la API en el cuadro de resultados.
+         * @param {string} message El texto del mensaje.
+         * @param {boolean} isSuccess Indica si es un mensaje de éxito (true) o error (false).
+         */
+        function displayMessage(message, isSuccess) {
+            messageBox.textContent = message;
+            messageBox.className = 'text-lg font-mono p-3 rounded-lg border transition duration-300 ease-in-out';
+            
+            if (isSuccess) {
+                // Estilo para éxito (Autenticación satisfactoria)
+                messageBox.classList.add('bg-green-100', 'text-green-700', 'border-green-400');
+            } else {
+                // Estilo para error (Error de autenticación)
+                messageBox.classList.add('bg-red-100', 'text-red-700', 'border-red-400');
+            }
+        }
+
+        /**
+         * Maneja la lógica de la petición POST para el registro.
+         */
+        async function handleRegister() {
+            const username = document.getElementById('reg-username').value;
+            const password = document.getElementById('reg-password').value;
+            
+            if (!username || !password) {
+                displayMessage('Debe ingresar usuario y contraseña.', false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+                
+                // Si el status es 201 (Created), es éxito
+                if (response.ok) {
+                    displayMessage(`Registro exitoso para ${username}. ID: ${data.userId}`, true);
+                } else {
+                    // Maneja errores como "El usuario ya existe" o errores 400
+                    displayMessage(`Error al registrar: ${data.error || response.statusText}`, false);
+                }
+
+            } catch (error) {
+                displayMessage('Error de conexión con el servidor. ¿Está corriendo Node.js?', false);
+            }
+        }
+
+        /**
+         * Maneja la lógica de la petición POST para el inicio de sesión.
+         */
+        async function handleLogin() {
+            const username = document.getElementById('log-username').value;
+            const password = document.getElementById('log-password').value;
+            
+            if (!username || !password) {
+                displayMessage('Debe ingresar usuario y contraseña.', false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+                
+                // Status 200 es éxito (Autenticación satisfactoria)
+                if (response.ok) {
+                    // **REQUISITO CLAVE DE LA EVIDENCIA**
+                    displayMessage(`¡Éxito! ${data.message}`, true); 
+                } else {
+                    // Status 401 es fallo (Error de autenticación)
+                    // **REQUISITO CLAVE DE LA EVIDENCIA**
+                    displayMessage(`Fallo: ${data.error || 'Error de autenticación'}`, false);
+                }
+
+            } catch (error) {
+                displayMessage('Error de conexión con el servidor. ¿Está corriendo Node.js?', false);
+            }
+        }
+    </script>
+</body>
+</html>
