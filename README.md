@@ -1,55 +1,51 @@
-# ServicioWeb - Autenticación con Express y SQLite
+# Servicio Web - Registro e Inicio de Sesión  
+_Evidencia GA7-220501096-AA5-EV01 - Diseño y Desarrollo de Servicios Web_
 
-Este proyecto implementa un servicio web con registro e inicio de sesión utilizando **Node.js**, **Express**, **SQLite** y **bcrypt**.
+Este proyecto implementa un servicio web básico con registro e inicio de sesión utilizando:
+
+- Node.js  
+- Express  
+- SQLite  
+- Bcrypt para encriptación de contraseñas  
 
 ---
 
-## 🚀 Instalación
+## 🚀 Instalación y ejecución
 
-### 1. Clonar o descargar el proyecto
-```bash
-git clone <url-del-repositorio>
-cd ServicioWeb
-```
-
-### 2. Instalar dependencias
+### 1. Instalar dependencias
 ```bash
 npm install
 ```
 
----
+### 2. Ejecutar el servidor
 
-## ▶️ Ejecución del servidor
-
-### Modo normal:
+**Modo normal:**
 ```bash
 npm start
 ```
 
-### Modo desarrollo (con reinicio automático):
+**Modo desarrollo (con reinicio automático):**
 ```bash
 npm run dev
 ```
 
-El servidor quedará disponible en:
-```
-http://localhost:3000
-```
+El servidor estará disponible en:  
+**http://localhost:3000**
 
 ---
 
 ## 🗄️ Base de datos
 
-El sistema usa **SQLite**.  
-El archivo de la base de datos se genera automáticamente en:
+El sistema utiliza SQLite.  
+La base de datos se genera automáticamente en la carpeta:
 
 ```
 /data/auth.db
 ```
 
-### Tabla principal: `users`
+### Tabla principal: **users**
 
-| Campo         | Tipo                                |
+| Campo         | Tipo                                 |
 |---------------|--------------------------------------|
 | id            | INTEGER PRIMARY KEY AUTOINCREMENT    |
 | username      | TEXT UNIQUE                          |
@@ -57,7 +53,7 @@ El archivo de la base de datos se genera automáticamente en:
 
 ---
 
-## 🔐 Rutas de la API
+## 🔐 Endpoints de la API
 
 ### POST /register  
 Registra un nuevo usuario.
@@ -70,7 +66,7 @@ Registra un nuevo usuario.
 }
 ```
 
-### Respuestas:
+#### Respuestas
 - **201** → Usuario creado correctamente  
 - **400** → Faltan datos  
 - **409** → Usuario ya existe  
@@ -79,7 +75,7 @@ Registra un nuevo usuario.
 ---
 
 ### POST /login  
-Inicia sesión verificando usuario y contraseña.
+Autentica un usuario existente.
 
 #### Body (JSON)
 ```json
@@ -89,16 +85,15 @@ Inicia sesión verificando usuario y contraseña.
 }
 ```
 
-### Respuestas:
-- **200** → Autenticación correcta  
+#### Respuestas
+- **200** → Autenticación satisfactoria  
 - **400** → Faltan datos  
-- **401** → Credenciales incorrectas  
+- **401** → Error en autenticación  
 - **500** → Error interno  
 
 ---
 
 ## 📁 Estructura del proyecto
-
 ```
 ServicioWeb/
 │── db.js
@@ -106,13 +101,11 @@ ServicioWeb/
 │── package.json
 │── README.md
 │── .gitignore
-│── data/
+│── data/ (contiene la base de datos auth.db)
 ```
 
 ---
 
-## 📌 Autor
-
+## 👨‍💻 Autor  
 **Juan Carlos Flórez**  
 Centro de Formación SENA
-
